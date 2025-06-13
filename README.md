@@ -196,17 +196,21 @@ python3 demo_interface.py
 ```bash
 # Install streamlit first (if not already installed)
 pip install streamlit
+# Or on Mac: pip3 install streamlit
 
 # Start web interface (all platforms)
 streamlit run web_demo.py
+# If command not found, try: python3 -m streamlit run web_demo.py
 ```
 
 **What this does:**
-- Beautiful web interface in your browser
-- Real-time predictions as you adjust sliders
+- Beautiful web interface in your browser (opens at `http://localhost:8501`)
+- Real-time predictions as you adjust sliders and inputs
 - Visual bias warnings and explanations
 - **Best option for presentations and demos**
 - Shows ethical concerns prominently
+- Interactive feature importance display
+- Demonstrates how nationality and behavioral factors drive bias
 
 ### Expected Output Files
 

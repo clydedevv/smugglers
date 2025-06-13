@@ -51,11 +51,19 @@ def load_model():
     numerical_cols = ['age', 'travel_frequency', 'flight_duration', 'previous_visits_to_hotspots']
     X_train[numerical_cols] = scaler.fit_transform(X_train[numerical_cols])
     
-    # Balance classes and train model
+    # Balance classes and train model with bias-sensitive parameters
     smote = SMOTE(random_state=42)
     X_train_balanced, y_train_balanced = smote.fit_resample(X_train, y_train)
     
-    model = RandomForestClassifier(n_estimators=100, random_state=42, max_depth=10)
+    # Use parameters that make the model more sensitive to all features
+    model = RandomForestClassifier(
+        n_estimators=200, 
+        random_state=42, 
+        max_depth=15,
+        min_samples_split=5,
+        min_samples_leaf=2,
+        max_features='sqrt'
+    )
     model.fit(X_train_balanced, y_train_balanced)
     
     return model, scaler, feature_names
@@ -129,10 +137,12 @@ def main():
     .flagged {
         background-color: #ffebee;
         border-color: #f44336;
+        color: #d32f2f;
     }
     .cleared {
         background-color: #e8f5e8;
         border-color: #4caf50;
+        color: #2e7d32;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -314,6 +324,22 @@ def main():
         st.write("**Smuggler Probability:**")
         st.progress(smuggler_prob / 100)
         st.write(f"{smuggler_prob:.1f}%")
+        
+        # Show feature importance for this prediction
+        st.subheader("🔍 Key Factors Influencing This Decision")
+        feature_importance = model.feature_importances_
+        feature_names_display = [name.replace('_', ' ').title() for name in feature_names]
+        
+        # Get top 5 most important features
+        importance_df = pd.DataFrame({
+            'Feature': feature_names_display,
+            'Importance': feature_importance
+        }).sort_values('Importance', ascending=False).head(5)
+        
+        for _, row in importance_df.iterrows():
+            st.write(f"• **{row['Feature']}**: {row['Importance']:.1%} influence")
+        
+        st.caption("⚠️ These weights show algorithmic bias - nationality and subjective behaviors dominate")
     
     # Bottom warning and explanation
     st.markdown("---")
